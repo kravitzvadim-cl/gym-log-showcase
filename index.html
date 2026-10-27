@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gym Log</title>
+  <meta name="description" content="Powerbuilding, mobility and abs program with a personal training log.">
+  <meta name="theme-color" content="#eef0ee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Gym Log">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preload" href="fonts/BigShouldersDisplay.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/Barlow-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // apply the saved theme before first paint
+    try { const t = (JSON.parse(localStorage.getItem("gymlog.v1")) || {}).settings?.theme; if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-text">
+      <div class="topbar-kicker" id="kicker"></div>
+      <h1 id="title">Gym Log</h1>
+    </div>
+    <div class="topbar-right">
+      <span id="weekBadge" class="week-chip"></span>
+      <button class="theme-btn" id="themeBtn" aria-label="Switch light or dark mode">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="view" tabindex="-1"></main>
+
+  <div class="timer" id="timer" hidden>
+    <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="track" cx="22" cy="22" r="19"/><circle class="prog" id="tmRing" cx="22" cy="22" r="19" pathLength="1"/></svg>
+    <div class="tm-main">
+      <div class="tm-time num" id="tmTime" role="timer" aria-live="off">0:00</div>
+      <div class="tm-label" id="tmLabel">Rest</div>
+    </div>
+    <button class="tm-btn" data-tm="-15" aria-label="15 seconds less">−15</button>
+    <button class="tm-btn" data-tm="15" aria-label="15 seconds more">+15</button>
+    <button class="tm-btn tm-skip" data-tm="skip" aria-label="Skip rest">Skip</button>
+    <button class="tm-btn tm-pause" data-tm="pause" aria-label="Pause timer">Pause</button>
+  </div>
+
+  <nav class="tabbar" aria-label="Main">
+    <button data-tab="today" class="active" aria-label="Today">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="9" width="3" height="6" rx="1"/><rect x="5.5" y="6.5" width="3" height="11" rx="1"/><rect x="8.5" y="11" width="7" height="2"/><rect x="15.5" y="6.5" width="3" height="11" rx="1"/><rect x="19" y="9" width="3" height="6" rx="1"/></svg>
+      <span>Today</span>
+    </button>
+    <button data-tab="week" aria-label="Log">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3" fill="none" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h5" fill="none" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>Log</span>
+    </button>
+    <button data-tab="progress" aria-label="Progress">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18l6-6 4 4 8-9" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h6v6" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Progress</span>
+    </button>
+    <button data-tab="guide" aria-label="Guide">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" fill="none" stroke-width="2" stroke-linejoin="round"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" fill="none" stroke-width="2" stroke-linejoin="round"/></svg>
+      <span>Guide</span>
+    </button>
+    <button data-tab="settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" fill="none" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke-width="2"/><circle cx="10" cy="17" r="2.2" fill="none" stroke-width="2"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+  <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </section>
+
+  <script src="program.js"></script>
+  <script src="howto.js"></script>
+  <script src="details.js"></script>
+  <script src="swaps.js"></script>
+  <script src="coach.js"></script>
+  <script src="report.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
